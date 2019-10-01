@@ -192,4 +192,8 @@ dist/
 nbdist/
 .nb-gradle/
 
+# target directory
+target/
+
 # End of README.md
+
