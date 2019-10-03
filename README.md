@@ -9,7 +9,7 @@
 
 #### Project Details
 
-The <abbr title="JF Builds">JFB</abbr> Project is hosted on [github(https://github.com/jfbuilds/jf-project/).
+The <abbr title="JF Builds">JFB</abbr> Project is hosted on [github](https://github.com/jfbuilds/jf-project/).
 
 Core components for the project include:
--Spring Boot
+- Spring 5
