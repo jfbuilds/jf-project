@@ -1,4 +1,4 @@
-package com.jfbuilds.core;
+package com.jfbuilds.taco;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
