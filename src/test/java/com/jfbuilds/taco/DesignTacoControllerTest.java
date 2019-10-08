@@ -1,19 +1,19 @@
-
-//tag::testShowDesignForm[]
-
 package com.jfbuilds.taco;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import static org.mockito.Mockito.verify;
-import static 
- org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static 
- org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,86 +22,86 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jfbuilds.taco.Ingredient.Type;
+import com.jfbuilds.taco.data.IngredientRepository;
+import com.jfbuilds.taco.data.OrderRepository;
+import com.jfbuilds.taco.data.TacoRepository;
 import com.jfbuilds.taco.web.DesignTacoController;
 
-//tag::testProcessForm[]
 @RunWith(SpringRunner.class)
 @WebMvcTest(DesignTacoController.class)
 public class DesignTacoControllerTest {
-//end::testProcessForm[]
 
-@Autowired
-private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-private List<Ingredient> ingredients;
+  private List<Ingredient> ingredients;
 
-//end::testShowDesignForm[]
+  private Taco design;
 
-/*
-//tag::testProcessForm[]
-...
-//end::testProcessForm[]
-*/
+  @MockBean
+  private IngredientRepository ingredientRepository;
 
-//tag::testProcessForm[]
-private Taco design;
+  @MockBean
+  private TacoRepository designRepository;
 
-//end::testProcessForm[]
+  @MockBean
+  private OrderRepository orderRepository;
 
-//tag::testShowDesignForm[]
-@Before
-public void setup() {
- ingredients = Arrays.asList(
-   new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
-   new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
-   new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
-   new Ingredient("CARN", "Carnitas", Type.PROTEIN),
-   new Ingredient("TMTO", "Diced Tomatoes", Type.VEGGIES),
-   new Ingredient("LETC", "Lettuce", Type.VEGGIES),
-   new Ingredient("CHED", "Cheddar", Type.CHEESE),
-   new Ingredient("JACK", "Monterrey Jack", Type.CHEESE),
-   new Ingredient("SLSA", "Salsa", Type.SAUCE),
-   new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
- );
- 
-//end::testShowDesignForm[]
- 
- design = new Taco();
- design.setName("Test Taco");
- design.setIngredients(Arrays.asList("FLTO", "GRBF", "CHED"));
-//tag::testShowDesignForm[]
-}
+  @Before
+  public void setup() {
+    ingredients = Arrays.asList(
+      new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
+      new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
+      new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
+      new Ingredient("CARN", "Carnitas", Type.PROTEIN),
+      new Ingredient("TMTO", "Diced Tomatoes", Type.VEGGIES),
+      new Ingredient("LETC", "Lettuce", Type.VEGGIES),
+      new Ingredient("CHED", "Cheddar", Type.CHEESE),
+      new Ingredient("JACK", "Monterrey Jack", Type.CHEESE),
+      new Ingredient("SLSA", "Salsa", Type.SAUCE),
+      new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
+    );
 
-@Test
-public void testShowDesignForm() throws Exception {
- mockMvc.perform(get("/design"))
-     .andExpect(status().isOk())
-     .andExpect(view().name("design"))
-     .andExpect(model().attribute("wrap", ingredients.subList(0, 2)))
-     .andExpect(model().attribute("protein", ingredients.subList(2, 4)))
-     .andExpect(model().attribute("veggies", ingredients.subList(4, 6)))
-     .andExpect(model().attribute("cheese", ingredients.subList(6, 8)))
-     .andExpect(model().attribute("sauce", ingredients.subList(8, 10)));
-}
-//end::testShowDesignForm[]
+    when(ingredientRepository.findAll())
+        .thenReturn(ingredients);
 
-/*
-//tag::testProcessForm[]
-...
-//end::testProcessForm[]
-*/
+    when(ingredientRepository.findById("FLTO")).thenReturn(Optional.of(new Ingredient("FLTO", "Flour Tortilla", Type.WRAP)));
+    when(ingredientRepository.findById("GRBF")).thenReturn(Optional.of(new Ingredient("GRBF", "Ground Beef", Type.PROTEIN)));
+    when(ingredientRepository.findById("CHED")).thenReturn(Optional.of(new Ingredient("CHED", "Cheddar", Type.CHEESE)));
 
-//tag::testProcessForm[]
-@Test
-public void processDesign() throws Exception {
- mockMvc.perform(post("/design")
-     .content("name=Test+Taco&ingredients=FLTO,GRBF,CHED")
-     .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-     .andExpect(status().is3xxRedirection())
-     .andExpect(header().stringValues("Location", "/orders/current"));
-}
+    design = new Taco();
+    design.setName("Test Taco");
 
-//tag::testShowDesignForm[]
-}
-//end::testShowDesignForm[]
-//end::testProcessForm[]
+    design.setIngredients(Arrays.asList(
+        new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
+        new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
+        new Ingredient("CHED", "Cheddar", Type.CHEESE)
+  ));
+
+  }
+
+  @Test
+  public void testShowDesignForm() throws Exception {
+    mockMvc.perform(get("/design"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("design"))
+        .andExpect(model().attribute("wrap", ingredients.subList(0, 2)))
+        .andExpect(model().attribute("protein", ingredients.subList(2, 4)))
+        .andExpect(model().attribute("veggies", ingredients.subList(4, 6)))
+        .andExpect(model().attribute("cheese", ingredients.subList(6, 8)))
+        .andExpect(model().attribute("sauce", ingredients.subList(8, 10)));
+  }
+
+  @Test
+  public void processDesign() throws Exception {
+    when(designRepository.save(design))
+        .thenReturn(design);
+
+    mockMvc.perform(post("/design")
+        .content("name=Test+Taco&ingredients=FLTO,GRBF,CHED")
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(header().stringValues("Location", "/orders/current"));
+  }
+
+}//end::testProcessForm[]
